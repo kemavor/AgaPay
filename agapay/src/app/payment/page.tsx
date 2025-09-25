@@ -1,18 +1,56 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+interface Collection {
+  id: number;
+  title: string;
+  description?: string;
+  target_amount?: number;
+  current_amount: number;
+  currency: string;
+  status: string;
+  is_public: boolean;
+  start_date?: string;
+  end_date?: string;
+  created_at: string;
+  created_by: number;
+}
 
 export default function PaymentPage() {
   const [currentStep, setCurrentStep] = useState(1);
+  const [selectedCollection, setSelectedCollection] = useState<Collection | null>(null);
   const [formData, setFormData] = useState({
     amount: '',
     email: '',
     phone: '',
-    method: ''
+    method: '',
+    provider: '',
+    collection_id: ''
   });
+
+  useEffect(() => {
+    // Check if a collection was selected from the collections page
+    const storedCollection = localStorage.getItem('selectedCollection');
+    if (storedCollection) {
+      const collection = JSON.parse(storedCollection);
+      setSelectedCollection(collection);
+      setFormData(prev => ({ ...prev, collection_id: collection.id.toString() }));
+      // Clear the stored collection after loading
+      localStorage.removeItem('selectedCollection');
+    }
+  }, []);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const formatCurrency = (amount: number, currency: string) => {
+    return new Intl.NumberFormat('en-GH', {
+      style: 'currency',
+      currency: currency,
+      minimumFractionDigits: 2,
+    }).format(amount);
   };
 
   const renderStep = () => {
@@ -20,35 +58,42 @@ export default function PaymentPage() {
       case 1:
         return (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Payment Information</h3>
+            <h3 className="text-black text-lg font-semibold">Payment Information</h3>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Amount (GHS)</label>
+              <label className="block text-sm font-medium text-black mb-2">Amount (GHS)</label>
               <input
                 type="number"
                 value={formData.amount}
-                onChange={(e) => handleInputChange('amount', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value === '' || parseFloat(value) >= 0) {
+                    handleInputChange('amount', value);
+                  }
+                }}
+                min="0"
+                step="0.01"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-black placeholder-gray-400"
                 placeholder="0.00"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+              <label className="block text-sm font-medium text-black mb-2">Email</label>
               <input
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-black placeholder-gray-400"
                 placeholder="your@email.com"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+              <label className="block text-sm font-medium text-black mb-2">Phone</label>
               <input
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => handleInputChange('phone', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                placeholder="+233 000 000 0000"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-black placeholder-gray-400"
+                placeholder="+233(0)00-000-0000"
               />
             </div>
           </div>
@@ -58,20 +103,30 @@ export default function PaymentPage() {
         return (
           <div className="space-y-4">
             <h3 className="text-black text-lg font-semibold">Select Payment Method</h3>
-            <div className="grid grid-cols-2 gap-4">
-              {['Card', 'Bank Transfer', 'USSD', 'QR Code'].map((method) => (
-                <button
-                  key={method}
-                  onClick={() => handleInputChange('method', method)}
-                  className={`p-4 border-2 rounded-lg text-center ${
-                    formData.method === method
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-300 hover:border-gray-400'
-                  }`}
-                >
-                  {method}
-                </button>
-              ))}
+            <div className="grid grid-cols-1 gap-4 text-black">
+              <button
+                onClick={() => handleInputChange('method', 'Mobile Money')}
+                className={`p-4 border-2 rounded-lg text-left ${
+                  formData.method === 'Mobile Money'
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-gray-300 hover:border-gray-400'
+                }`}
+              >
+                <div className="font-semibold">Mobile Money (MoMo)</div>
+                <div className="text-sm text-black">MTN, Airtel-Tigo, Telecel</div>
+              </button>
+
+              <button
+                onClick={() => handleInputChange('method', 'Bank Transfer')}
+                className={`p-4 border-2 rounded-lg text-left ${
+                  formData.method === 'Bank Transfer'
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-gray-300 hover:border-gray-400'
+                }`}
+              >
+                <div className="font-semibold">Bank Transfer</div>
+                <div className="text-sm text-black">GTBank, Ecobank, Standard Chartered, Zenith, Fidelity, UBA</div>
+              </button>
             </div>
           </div>
         );
@@ -79,12 +134,50 @@ export default function PaymentPage() {
       case 3:
         return (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Confirm Payment</h3>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p><strong>Amount:</strong> ₦{formData.amount}</p>
+            <h3 className="text-black text-lg font-semibold">Select {formData.method === 'Mobile Money' ? 'Mobile Network' : 'Bank'}</h3>
+            <div className="grid grid-cols-2 gap-3 text-black">
+              {formData.method === 'Mobile Money'
+                ? ['MTN', 'Airtel-Tigo', 'Telecel'].map((provider) => (
+                    <button
+                      key={provider}
+                      onClick={() => handleInputChange('provider', provider)}
+                      className={`p-3 border-2 rounded-lg text-center ${
+                        formData.provider === provider
+                          ? 'border-blue-500 bg-blue-50'
+                          : 'border-gray-300 hover:border-gray-400'
+                      }`}
+                    >
+                      {provider}
+                    </button>
+                  ))
+                : ['GTBank', 'Ecobank', 'Standard Chartered', 'Zenith', 'Fidelity', 'UBA'].map((bank) => (
+                    <button
+                      key={bank}
+                      onClick={() => handleInputChange('provider', bank)}
+                      className={`p-3 border-2 rounded-lg text-center ${
+                        formData.provider === bank
+                          ? 'border-blue-500 bg-blue-50'
+                          : 'border-gray-300 hover:border-gray-400'
+                      }`}
+                    >
+                      {bank}
+                    </button>
+                  ))
+              }
+            </div>
+          </div>
+        );
+
+      case 4:
+        return (
+          <div className="space-y-4">
+            <h3 className="text-black text-lg font-semibold">Confirm Payment</h3>
+            <div className="bg-gray-50 p-4 text-black rounded-lg">
+              <p><strong>Amount:</strong> ₵{formData.amount}</p>
               <p><strong>Email:</strong> {formData.email}</p>
               <p><strong>Phone:</strong> {formData.phone}</p>
               <p><strong>Method:</strong> {formData.method}</p>
+              {formData.provider && <p><strong>{formData.method === 'Mobile Money' ? 'Network' : 'Bank'}:</strong> {formData.provider}</p>}
             </div>
           </div>
         );
@@ -98,20 +191,46 @@ export default function PaymentPage() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Make Payment</h1>
-          <p className="text-gray-600">Secure payment processing with AgaPay</p>
+          <h1 className="text-3xl font-bold text-black">Make Payment</h1>
+          <p className="text-black">Secure payment processing with AgaPay</p>
+          {selectedCollection && (
+            <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <h3 className="text-lg font-semibold text-blue-900">{selectedCollection.title}</h3>
+              {selectedCollection.description && (
+                <p className="text-sm text-blue-700 mt-1">{selectedCollection.description}</p>
+              )}
+              {selectedCollection.target_amount && (
+                <div className="mt-2">
+                  <div className="flex justify-between text-sm text-blue-600 mb-1">
+                    <span>Progress</span>
+                    <span>{Math.min((selectedCollection.current_amount / selectedCollection.target_amount) * 100, 100).toFixed(1)}%</span>
+                  </div>
+                  <div className="w-full bg-blue-200 rounded-full h-2">
+                    <div
+                      className="bg-blue-600 h-2 rounded-full"
+                      style={{ width: `${Math.min((selectedCollection.current_amount / selectedCollection.target_amount) * 100, 100)}%` }}
+                    ></div>
+                  </div>
+                  <div className="flex justify-between text-sm text-blue-600 mt-1">
+                    <span>{formatCurrency(selectedCollection.current_amount, selectedCollection.currency)}</span>
+                    <span>{formatCurrency(selectedCollection.target_amount, selectedCollection.currency)}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="bg-white rounded-lg shadow-lg p-8">
           <div className="mb-6">
             <div className="flex justify-between mb-4">
-              {[1, 2, 3].map((step) => (
+              {[1, 2, 3, 4].map((step) => (
                 <div
                   key={step}
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
                     step <= currentStep
                       ? 'bg-blue-600 text-white'
-                      : 'bg-gray-200 text-gray-600'
+                      : 'bg-gray-200 text-black'
                   }`}
                 >
                   {step}
@@ -121,7 +240,7 @@ export default function PaymentPage() {
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div
                 className="bg-blue-600 h-2 rounded-full"
-                style={{ width: `${(currentStep / 3) * 100}%` }}
+                style={{ width: `${(currentStep / 4) * 100}%` }}
               />
             </div>
           </div>
@@ -134,16 +253,22 @@ export default function PaymentPage() {
             {currentStep > 1 && (
               <button
                 onClick={() => setCurrentStep(currentStep - 1)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                className="px-4 py-2 text-black hover:text-gray-800"
               >
                 Back
               </button>
             )}
-            {currentStep < 3 ? (
+            {currentStep < 4 ? (
               <button
                 onClick={() => setCurrentStep(currentStep + 1)}
                 className="ml-auto px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                disabled={!formData.amount || !formData.email || !formData.phone || (currentStep === 2 && !formData.method)}
+                disabled={
+                  !formData.amount ||
+                  !formData.email ||
+                  !formData.phone ||
+                  (currentStep === 2 && !formData.method) ||
+                  (currentStep === 3 && !formData.provider)
+                }
               >
                 Next
               </button>
@@ -152,7 +277,7 @@ export default function PaymentPage() {
                 onClick={() => alert('Payment processed successfully!')}
                 className="ml-auto px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
               >
-                Pay ₦{formData.amount}
+                Pay ₵{formData.amount}
               </button>
             )}
           </div>

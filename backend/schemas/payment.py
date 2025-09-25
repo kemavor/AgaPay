@@ -47,6 +47,7 @@ class PaymentInitialize(BaseModel):
     email: EmailStr
     payment_method: PaymentMethod
     callback_url: Optional[str] = None
+    collection_id: Optional[int] = None
 
 
 class MobileMoneyPayment(BaseModel):

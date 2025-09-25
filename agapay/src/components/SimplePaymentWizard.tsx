@@ -10,11 +10,11 @@ interface PaymentData {
 }
 
 const paymentMethods = [
-  { id: 'card', name: 'Card Payment', icon: '💳', description: 'Pay with debit/credit card' },
-  { id: 'ussd', name: 'USSD', icon: '📱', description: 'Pay with USSD code' },
-  { id: 'qr', name: 'QR Code', icon: '📱', description: 'Scan QR code to pay' },
-  { id: 'bank', name: 'Bank Transfer', icon: '🏦', description: 'Direct bank transfer' },
-  { id: 'momopay', name: 'Mobile Money', icon: '📲', description: 'Pay with MTN, AirtelTigo, Vodafone' },
+  { id: 'card', name: 'Card Payment', icon: 'C', description: 'Pay with debit/credit card' },
+  { id: 'ussd', name: 'USSD', icon: 'U', description: 'Pay with USSD code' },
+  { id: 'qr', name: 'QR Code', icon: 'Q', description: 'Scan QR code to pay' },
+  { id: 'bank', name: 'Bank Transfer', icon: 'B', description: 'Direct bank transfer' },
+  { id: 'momopay', name: 'Mobile Money', icon: 'M', description: 'Pay with MTN, AirtelTigo, Vodafone' },
 ];
 
 export default function SimplePaymentWizard() {
@@ -64,12 +64,12 @@ export default function SimplePaymentWizard() {
       case 1:
         return (
           <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-gray-900">Enter Payment Amount</h3>
+            <h3 className="text-lg font-semibold text-black">Enter Payment Amount</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Amount (GHS)</label>
+                <label className="block text-sm font-medium text-black mb-2">Amount (GHS)</label>
                 <div className="relative">
-                  <span className="absolute left-3 top-3 text-gray-500">₵</span>
+                  <span className="absolute left-3 top-3 text-black">₵</span>
                   <input
                     type="number"
                     value={paymentData.amount}
@@ -80,7 +80,7 @@ export default function SimplePaymentWizard() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                <label className="block text-sm font-medium text-black mb-2">Email Address</label>
                 <input
                   type="email"
                   value={paymentData.email}
@@ -90,7 +90,7 @@ export default function SimplePaymentWizard() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                <label className="block text-sm font-medium text-black mb-2">Phone Number</label>
                 <input
                   type="tel"
                   value={paymentData.phone}
@@ -106,7 +106,7 @@ export default function SimplePaymentWizard() {
       case 2:
         return (
           <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-gray-900">Select Payment Method</h3>
+            <h3 className="text-lg font-semibold text-black">Select Payment Method</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {paymentMethods.map((method) => (
                 <button
@@ -121,8 +121,8 @@ export default function SimplePaymentWizard() {
                   <div className="flex items-center space-x-3">
                     <span className="text-2xl">{method.icon}</span>
                     <div>
-                      <h4 className="font-medium text-gray-900">{method.name}</h4>
-                      <p className="text-sm text-gray-600">{method.description}</p>
+                      <h4 className="font-medium text-black">{method.name}</h4>
+                      <p className="text-sm text-black">{method.description}</p>
                     </div>
                   </div>
                 </button>
@@ -134,10 +134,10 @@ export default function SimplePaymentWizard() {
       case 3:
         return (
           <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-gray-900">Payment Details</h3>
+            <h3 className="text-lg font-semibold text-black">Payment Details</h3>
             <div className="bg-gray-50 rounded-lg p-6">
-              <p className="text-gray-600">Payment details form would appear here based on selected method.</p>
-              <p className="text-sm text-gray-500 mt-2">Card form, bank details form, etc.</p>
+              <p className="text-black">Payment details form would appear here based on selected method.</p>
+              <p className="text-sm text-black mt-2">Card form, bank details form, etc.</p>
             </div>
           </div>
         );
@@ -145,28 +145,28 @@ export default function SimplePaymentWizard() {
       case 4:
         return (
           <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-gray-900">Confirm Payment</h3>
+            <h3 className="text-lg font-semibold text-black">Confirm Payment</h3>
             <div className="bg-gray-50 rounded-lg p-6 space-y-4">
               <div className="flex justify-between">
-                <span className="text-gray-600">Amount:</span>
+                <span className="text-black">Amount:</span>
                 <span className="font-semibold">₵{paymentData.amount}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Email:</span>
+                <span className="text-black">Email:</span>
                 <span className="font-semibold">{paymentData.email}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Phone:</span>
+                <span className="text-black">Phone:</span>
                 <span className="font-semibold">{paymentData.phone}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Method:</span>
+                <span className="text-black">Method:</span>
                 <span className="font-semibold">
                   {paymentMethods.find(m => m.id === paymentData.method)?.name}
                 </span>
               </div>
               <div className="border-t pt-4 flex justify-between">
-                <span className="text-gray-600">Total:</span>
+                <span className="text-black">Total:</span>
                 <span className="text-xl font-bold text-blue-600">₵{paymentData.amount}</span>
               </div>
             </div>
@@ -183,10 +183,10 @@ export default function SimplePaymentWizard() {
                 <span className="text-5xl text-red-600"></span>
               )}
             </div>
-            <h3 className="text-xl font-semibold text-gray-900">
+            <h3 className="text-xl font-semibold text-black">
               {paymentStatus === 'success' ? 'Payment Successful!' : 'Payment Failed'}
             </h3>
-            <p className="text-gray-600">
+            <p className="text-black">
               {paymentStatus === 'success'
                 ? 'Your payment has been processed successfully.'
                 : 'There was an issue processing your payment. Please try again.'
@@ -215,8 +215,8 @@ export default function SimplePaymentWizard() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">Make Payment</h2>
-          <p className="mt-2 text-sm text-gray-600">Secure payment processing with AgaPay</p>
+          <h2 className="mt-6 text-3xl font-bold text-black">Make Payment</h2>
+          <p className="mt-2 text-sm text-black">Secure payment processing with AgaPay</p>
         </div>
 
         <div className="bg-white rounded-lg shadow-lg p-8">
@@ -229,7 +229,7 @@ export default function SimplePaymentWizard() {
                   className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
                     step <= currentStep
                       ? 'bg-blue-600 text-white'
-                      : 'bg-gray-200 text-gray-600'
+                      : 'bg-gray-200 text-black'
                   }`}
                 >
                   {step}
@@ -255,7 +255,7 @@ export default function SimplePaymentWizard() {
               {currentStep > 1 && (
                 <button
                   onClick={handlePrevious}
-                  className="flex items-center px-4 py-2 text-gray-600 hover:text-gray-800"
+                  className="flex items-center px-4 py-2 text-black hover:text-gray-800"
                 >
                   <span className="mr-2">←</span>
                   Back
@@ -269,7 +269,7 @@ export default function SimplePaymentWizard() {
                   className={`flex items-center px-6 py-2 rounded-lg ${
                     canProceed()
                       ? 'bg-blue-600 text-white hover:bg-blue-700'
-                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-gray-300 text-black cursor-not-allowed'
                   }`}
                 >
                   Next

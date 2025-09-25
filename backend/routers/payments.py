@@ -7,7 +7,7 @@ import httpx
 from datetime import datetime
 
 from database_simple import get_db
-from models.models import Payment, User, PaymentStatus, PaymentMethod, MobileMoneyProvider
+from models.models import Payment, User, Collection, PaymentStatus, PaymentMethod, MobileMoneyProvider
 from schemas.payment import (
     PaymentCreate, PaymentResponse, PaymentInitialize,
     MobileMoneyPayment, PaymentVerification, PaystackWebhook,
@@ -33,6 +33,7 @@ async def initialize_payment(
     payment = Payment(
         reference=reference,
         user_id=1,  # TODO: Get from auth token
+        collection_id=payment_data.collection_id,  # Link to collection if provided
         amount=payment_data.amount,
         currency="GHS",
         payment_method=payment_data.payment_method,
@@ -161,6 +162,14 @@ async def verify_payment(
         payment.status = PaymentStatus.SUCCESS if payment_data["status"] == "success" else PaymentStatus.FAILED
         payment.paystack_transaction_id = str(payment_data["id"])
         payment.processed_at = datetime.utcnow()
+
+        # Update collection amount if payment is successful and linked to a collection
+        if payment.status == PaymentStatus.SUCCESS and payment.collection_id:
+            collection = db.query(Collection).filter(Collection.id == payment.collection_id).first()
+            if collection:
+                collection.current_amount += payment.amount
+                collection.updated_at = datetime.utcnow()
+
         db.commit()
 
     return {
@@ -225,6 +234,14 @@ async def paystack_webhook(
             payment.status = PaymentStatus.SUCCESS
             payment.paystack_transaction_id = str(data.get("id"))
             payment.processed_at = datetime.utcnow()
+
+            # Update collection amount if payment is successful and linked to a collection
+            if payment.collection_id:
+                collection = db.query(Collection).filter(Collection.id == payment.collection_id).first()
+                if collection:
+                    collection.current_amount += payment.amount
+                    collection.updated_at = datetime.utcnow()
+
             db.commit()
 
     elif event == "charge.failed":

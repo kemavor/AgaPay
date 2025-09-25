@@ -21,6 +21,12 @@ class PaymentStatus(str, enum.Enum):
     CANCELLED = "cancelled"
 
 
+class CollectionStatus(str, enum.Enum):
+    ACTIVE = "active"
+    INACTIVE = "inactive"
+    EXPIRED = "expired"
+
+
 class PaymentMethod(str, enum.Enum):
     CARD = "card"
     MOBILE_MONEY = "mobile_money"
@@ -52,12 +58,37 @@ class User(Base):
     payments = relationship("Payment", back_populates="user")
 
 
+class Collection(Base):
+    __tablename__ = "collections"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    target_amount = Column(Numeric(10, 2), nullable=True)
+    current_amount = Column(Numeric(10, 2), default=0)
+    currency = Column(String, default="GHS")
+    status = Column(Enum(CollectionStatus), default=CollectionStatus.ACTIVE)
+    is_public = Column(Boolean, default=True)
+    start_date = Column(DateTime(timezone=True), nullable=True)
+    end_date = Column(DateTime(timezone=True), nullable=True)
+    created_by = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    # Timestamps
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # Relationships
+    creator = relationship("User")
+    payments = relationship("Payment", back_populates="collection")
+
+
 class Payment(Base):
     __tablename__ = "payments"
 
     id = Column(Integer, primary_key=True, index=True)
     reference = Column(String, unique=True, index=True, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    collection_id = Column(Integer, ForeignKey("collections.id"), nullable=True)
     amount = Column(Numeric(10, 2), nullable=False)
     currency = Column(String, default="GHS")
     payment_method = Column(Enum(PaymentMethod), nullable=False)
@@ -83,6 +114,7 @@ class Payment(Base):
 
     # Relationships
     user = relationship("User", back_populates="payments")
+    collection = relationship("Collection", back_populates="payments")
 
 
 class PaymentLog(Base):
@@ -92,7 +124,7 @@ class PaymentLog(Base):
     payment_id = Column(Integer, ForeignKey("payments.id"), nullable=False)
     level = Column(String, default="INFO")  # INFO, WARNING, ERROR
     message = Column(Text, nullable=False)
-    metadata = Column(Text)  # JSON string for additional data
+    meta_data = Column(Text)  # JSON string for additional data
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships
