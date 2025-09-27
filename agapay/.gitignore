@@ -31,7 +31,14 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-.env*
+.env
+.env.local
+.env.production
+
+# OAuth secret files (NEVER commit these)
+*client_secret*.json
+*oauth*.json
+secrets/
 
 # vercel
 .vercel

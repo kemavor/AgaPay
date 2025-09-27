@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 interface Collection {
   id: number;
@@ -18,6 +19,7 @@ interface Collection {
 }
 
 export default function PaymentPage() {
+  const searchParams = useSearchParams();
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedCollection, setSelectedCollection] = useState<Collection | null>(null);
   const [formData, setFormData] = useState({
@@ -30,16 +32,36 @@ export default function PaymentPage() {
   });
 
   useEffect(() => {
-    // Check if a collection was selected from the collections page
+    // Check if a collection was passed via URL parameter
+    const collectionId = searchParams.get('collection');
+    if (collectionId) {
+      // Fetch collection details
+      const fetchCollection = async () => {
+        try {
+          const response = await fetch('/api/collections');
+          if (!response.ok) return;
+          const data = await response.json();
+          const collection = data.collections?.find((c: Collection) => c.id === parseInt(collectionId));
+          if (collection) {
+            setSelectedCollection(collection);
+            setFormData(prev => ({ ...prev, collection_id: collection.id.toString() }));
+          }
+        } catch (error) {
+          console.error('Failed to fetch collection:', error);
+        }
+      };
+      fetchCollection();
+    }
+
+    // Check if a collection was selected from the collections page (fallback)
     const storedCollection = localStorage.getItem('selectedCollection');
     if (storedCollection) {
       const collection = JSON.parse(storedCollection);
       setSelectedCollection(collection);
       setFormData(prev => ({ ...prev, collection_id: collection.id.toString() }));
-      // Clear the stored collection after loading
       localStorage.removeItem('selectedCollection');
     }
-  }, []);
+  }, [searchParams]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -108,7 +130,7 @@ export default function PaymentPage() {
                 onClick={() => handleInputChange('method', 'Mobile Money')}
                 className={`p-4 border-2 rounded-lg text-left ${
                   formData.method === 'Mobile Money'
-                    ? 'border-blue-500 bg-blue-50'
+                    ? 'border-red-500 bg-red-50'
                     : 'border-gray-300 hover:border-gray-400'
                 }`}
               >
@@ -120,7 +142,7 @@ export default function PaymentPage() {
                 onClick={() => handleInputChange('method', 'Bank Transfer')}
                 className={`p-4 border-2 rounded-lg text-left ${
                   formData.method === 'Bank Transfer'
-                    ? 'border-blue-500 bg-blue-50'
+                    ? 'border-red-500 bg-red-50'
                     : 'border-gray-300 hover:border-gray-400'
                 }`}
               >
@@ -143,7 +165,7 @@ export default function PaymentPage() {
                       onClick={() => handleInputChange('provider', provider)}
                       className={`p-3 border-2 rounded-lg text-center ${
                         formData.provider === provider
-                          ? 'border-blue-500 bg-blue-50'
+                          ? 'border-red-500 bg-red-50'
                           : 'border-gray-300 hover:border-gray-400'
                       }`}
                     >
@@ -156,7 +178,7 @@ export default function PaymentPage() {
                       onClick={() => handleInputChange('provider', bank)}
                       className={`p-3 border-2 rounded-lg text-center ${
                         formData.provider === bank
-                          ? 'border-blue-500 bg-blue-50'
+                          ? 'border-red-500 bg-red-50'
                           : 'border-gray-300 hover:border-gray-400'
                       }`}
                     >
@@ -194,24 +216,24 @@ export default function PaymentPage() {
           <h1 className="text-3xl font-bold text-black">Make Payment</h1>
           <p className="text-black">Secure payment processing with AgaPay</p>
           {selectedCollection && (
-            <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-              <h3 className="text-lg font-semibold text-blue-900">{selectedCollection.title}</h3>
+            <div className="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
+              <h3 className="text-lg font-semibold text-red-900">{selectedCollection.title}</h3>
               {selectedCollection.description && (
-                <p className="text-sm text-blue-700 mt-1">{selectedCollection.description}</p>
+                <p className="text-sm text-red-700 mt-1">{selectedCollection.description}</p>
               )}
               {selectedCollection.target_amount && (
                 <div className="mt-2">
-                  <div className="flex justify-between text-sm text-blue-600 mb-1">
+                  <div className="flex justify-between text-sm text-red-600 mb-1">
                     <span>Progress</span>
                     <span>{Math.min((selectedCollection.current_amount / selectedCollection.target_amount) * 100, 100).toFixed(1)}%</span>
                   </div>
-                  <div className="w-full bg-blue-200 rounded-full h-2">
+                  <div className="w-full bg-red-200 rounded-full h-2">
                     <div
-                      className="bg-blue-600 h-2 rounded-full"
+                      className="bg-red-600 h-2 rounded-full"
                       style={{ width: `${Math.min((selectedCollection.current_amount / selectedCollection.target_amount) * 100, 100)}%` }}
                     ></div>
                   </div>
-                  <div className="flex justify-between text-sm text-blue-600 mt-1">
+                  <div className="flex justify-between text-sm text-red-600 mt-1">
                     <span>{formatCurrency(selectedCollection.current_amount, selectedCollection.currency)}</span>
                     <span>{formatCurrency(selectedCollection.target_amount, selectedCollection.currency)}</span>
                   </div>
@@ -229,7 +251,7 @@ export default function PaymentPage() {
                   key={step}
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
                     step <= currentStep
-                      ? 'bg-blue-600 text-white'
+                      ? 'bg-red-600 text-white'
                       : 'bg-gray-200 text-black'
                   }`}
                 >
@@ -239,7 +261,7 @@ export default function PaymentPage() {
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div
-                className="bg-blue-600 h-2 rounded-full"
+                className="bg-red-600 h-2 rounded-full"
                 style={{ width: `${(currentStep / 4) * 100}%` }}
               />
             </div>
@@ -261,7 +283,7 @@ export default function PaymentPage() {
             {currentStep < 4 ? (
               <button
                 onClick={() => setCurrentStep(currentStep + 1)}
-                className="ml-auto px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                className="ml-auto px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
                 disabled={
                   !formData.amount ||
                   !formData.email ||

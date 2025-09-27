@@ -53,7 +53,7 @@ interface IridescenceProps {
 }
 
 export default function Iridescence({
-  color = [1, 1, 1],
+  color = [0.8, 0.2, 0.2],
   speed = 1.0,
   amplitude = 0.1,
   mouseReact = true,

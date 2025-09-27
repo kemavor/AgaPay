@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+// import LinearBuffer from '@/components/LinearBuffer';
 
 interface Collection {
   id: number;
@@ -66,9 +67,11 @@ export default function CollectionsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-black">Loading collections...</p>
+        <div className="text-center max-w-md mx-auto">
+          <div className="mb-4">
+            <div className="loader mx-auto"></div>
+          </div>
+          <p className="text-black">Loading collections...</p>
         </div>
       </div>
     );

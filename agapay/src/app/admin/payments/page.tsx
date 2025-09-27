@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
+// import LinearBuffer from '@/components/LinearBuffer'
 
 interface Payment {
   id: number
@@ -52,7 +53,7 @@ function AdminPaymentsContent() {
 
   const navigation = [
     { name: 'Dashboard', href: '/admin/dashboard', current: false },
-    { name: 'Collections', href: '/admin/collections', current: false },
+    { name: 'Contributions', href: '/admin/collections', current: false },
     { name: 'Payments', href: '/admin/payments', current: true },
     { name: 'Users', href: '/admin/users', current: false },
   ]
@@ -84,9 +85,11 @@ function AdminPaymentsContent() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-black">Loading payments...</p>
+        <div className="text-center max-w-md mx-auto">
+          <div className="mb-4">
+            <div className="loader mx-auto"></div>
+          </div>
+          <p className="text-black">Loading payments...</p>
         </div>
       </div>
     )
@@ -101,7 +104,7 @@ function AdminPaymentsContent() {
             {/* Logo and Brand */}
             <div className="flex items-center">
               <div className="flex-shrink-0 flex items-center">
-                <span className="text-xl sm:text-2xl font-bold text-blue-600">₵</span>
+                <span className="text-xl sm:text-2xl font-bold text-red-600">₵</span>
                 <span className="ml-1 sm:ml-2 text-lg sm:text-xl font-bold text-black hidden sm:block">AgaPay Admin</span>
                 <span className="ml-1 sm:ml-2 text-sm sm:text-lg font-bold text-black sm:hidden">Admin</span>
               </div>
@@ -115,8 +118,8 @@ function AdminPaymentsContent() {
                       href={item.href}
                       className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                         item.current
-                          ? 'bg-blue-100 text-blue-700'
-                          : 'text-black hover:text-blue-600 hover:bg-gray-50'
+                          ? 'bg-red-100 text-red-700'
+                          : 'text-black hover:text-red-600 hover:bg-gray-50'
                       }`}
                     >
                       {item.name}
@@ -138,8 +141,8 @@ function AdminPaymentsContent() {
                     {user?.email}
                   </p>
                 </div>
-                <div className="h-7 w-7 sm:h-8 sm:w-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-xs sm:text-sm font-medium text-blue-600">
+                <div className="h-7 w-7 sm:h-8 sm:w-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-xs sm:text-sm font-medium text-red-600">
                     {user?.full_name?.charAt(0).toUpperCase()}
                   </span>
                 </div>
@@ -186,8 +189,8 @@ function AdminPaymentsContent() {
                     href={item.href}
                     className={`block px-3 py-3 rounded-md text-base font-medium transition-colors touch-manipulation ${
                       item.current
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'text-black hover:text-blue-600 hover:bg-gray-50'
+                        ? 'bg-red-100 text-red-700'
+                        : 'text-black hover:text-red-600 hover:bg-gray-50'
                     }`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
@@ -197,8 +200,8 @@ function AdminPaymentsContent() {
                 {/* Mobile user info */}
                 <div className="border-t border-gray-200 pt-4 pb-3">
                   <div className="flex items-center px-3 py-2">
-                    <div className="h-9 w-9 bg-blue-100 rounded-full flex items-center justify-center">
-                      <span className="text-sm font-medium text-blue-600">
+                    <div className="h-9 w-9 bg-red-100 rounded-full flex items-center justify-center">
+                      <span className="text-sm font-medium text-red-600">
                         {user?.full_name?.charAt(0).toUpperCase()}
                       </span>
                     </div>
@@ -223,18 +226,18 @@ function AdminPaymentsContent() {
       </nav>
 
       {/* Page Content */}
-      <div className="bg-blue-600 text-white py-4 sm:py-6">
+      <div className="bg-red-600 text-white py-4 sm:py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="text-center sm:text-left">
               <h1 className="text-xl sm:text-2xl font-bold">Payment Management</h1>
-              <p className="text-blue-100 text-sm sm:text-base">Manage and monitor all payments</p>
+              <p className="text-red-100 text-sm sm:text-base">Manage and monitor all payments</p>
             </div>
             <div className="flex flex-wrap justify-center sm:justify-end gap-2">
               <span className="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                 {payments.length} Total Payments
               </span>
-              <span className="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              <span className="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
                 Admin User
               </span>
             </div>

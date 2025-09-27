@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+// import LinearBuffer from '@/components/LinearBuffer';
 
 interface Collection {
   id: number;
@@ -122,9 +123,11 @@ export default function AdminCollectionsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-black">Loading collections...</p>
+        <div className="text-center max-w-md mx-auto">
+          <div className="mb-4">
+            <div className="loader mx-auto"></div>
+          </div>
+          <p className="text-black">Loading contributions...</p>
         </div>
       </div>
     );
@@ -137,15 +140,15 @@ export default function AdminCollectionsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-3xl font-bold text-black">Manage Collections</h1>
-              <p className="mt-2 text-black">Create and manage payment collections</p>
+              <h1 className="text-3xl font-bold text-black">Manage Contributions</h1>
+              <p className="mt-2 text-black">Create and manage contribution campaigns</p>
             </div>
             <div className="flex space-x-4">
               <button
                 onClick={() => setShowCreateForm(true)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
               >
-                Create Collection
+                Create Contribution
               </button>
               <button
                 onClick={() => router.push('/admin/dashboard')}
@@ -163,7 +166,7 @@ export default function AdminCollectionsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-black">Create New Collection</h2>
+              <h2 className="text-xl font-semibold text-black">Create New Contribution</h2>
               <button
                 onClick={() => setShowCreateForm(false)}
                 className="text-gray-400 hover:text-black"
@@ -269,7 +272,7 @@ export default function AdminCollectionsPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
                 >
                   Create Collection
                 </button>
@@ -294,7 +297,7 @@ export default function AdminCollectionsPage() {
             <p className="text-black mb-4">Create your first collection to get started.</p>
             <button
               onClick={() => setShowCreateForm(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
             >
               Create Collection
             </button>
@@ -329,7 +332,7 @@ export default function AdminCollectionsPage() {
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
-                          className="bg-blue-600 h-2 rounded-full"
+                          className="bg-red-600 h-2 rounded-full"
                           style={{ width: `${Math.min((collection.current_amount / collection.target_amount) * 100, 100)}%` }}
                         ></div>
                       </div>

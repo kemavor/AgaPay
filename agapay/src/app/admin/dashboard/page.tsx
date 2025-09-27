@@ -18,7 +18,7 @@ function AdminDashboardContent() {
 
   const navigation = [
     { name: 'Dashboard', href: '/admin/dashboard', current: true },
-    { name: 'Collections', href: '/admin/collections', current: false },
+    { name: 'Contributions', href: '/admin/collections', current: false },
     { name: 'Payments', href: '/admin/payments', current: false },
     { name: 'Users', href: '/admin/users', current: false },
   ]
@@ -32,7 +32,7 @@ function AdminDashboardContent() {
             {/* Logo and Brand */}
             <div className="flex items-center">
               <div className="flex-shrink-0 flex items-center">
-                <span className="text-xl sm:text-2xl font-bold text-blue-600">₵</span>
+                <span className="text-xl sm:text-2xl font-bold text-red-600">₵</span>
                 <span className="ml-1 sm:ml-2 text-lg sm:text-xl font-bold text-gray-900 hidden sm:block">AgaPay Admin</span>
                 <span className="ml-1 sm:ml-2 text-sm sm:text-lg font-bold text-gray-900 sm:hidden">Admin</span>
               </div>
@@ -46,8 +46,8 @@ function AdminDashboardContent() {
                       href={item.href}
                       className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                         item.current
-                          ? 'bg-blue-100 text-blue-700'
-                          : 'text-black hover:text-blue-600 hover:bg-gray-50'
+                          ? 'bg-red-100 text-red-700'
+                          : 'text-black hover:text-red-600 hover:bg-gray-50'
                       }`}
                     >
                       {item.name}
@@ -69,8 +69,8 @@ function AdminDashboardContent() {
                     {user?.email}
                   </p>
                 </div>
-                <div className="h-7 w-7 sm:h-8 sm:w-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-xs sm:text-sm font-medium text-blue-600">
+                <div className="h-7 w-7 sm:h-8 sm:w-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-xs sm:text-sm font-medium text-red-600">
                     {user?.full_name?.charAt(0).toUpperCase()}
                   </span>
                 </div>
@@ -117,8 +117,8 @@ function AdminDashboardContent() {
                     href={item.href}
                     className={`block px-3 py-3 rounded-md text-base font-medium transition-colors touch-manipulation ${
                       item.current
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'text-black hover:text-blue-600 hover:bg-gray-50'
+                        ? 'bg-red-100 text-red-700'
+                        : 'text-black hover:text-red-600 hover:bg-gray-50'
                     }`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
@@ -128,8 +128,8 @@ function AdminDashboardContent() {
                 {/* Mobile user info */}
                 <div className="border-t border-gray-200 pt-4 pb-3">
                   <div className="flex items-center px-3 py-2">
-                    <div className="h-9 w-9 bg-blue-100 rounded-full flex items-center justify-center">
-                      <span className="text-sm font-medium text-blue-600">
+                    <div className="h-9 w-9 bg-red-100 rounded-full flex items-center justify-center">
+                      <span className="text-sm font-medium text-red-600">
                         {user?.full_name?.charAt(0).toUpperCase()}
                       </span>
                     </div>
@@ -154,20 +154,14 @@ function AdminDashboardContent() {
       </nav>
 
       {/* Dashboard Content */}
-      <div className="bg-blue-600 text-white py-4 sm:py-6">
+      <div className="bg-red-600 text-white py-4 sm:py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="text-center sm:text-left">
               <h1 className="text-xl sm:text-2xl font-bold">Admin Dashboard</h1>
-              <p className="text-blue-100 text-sm sm:text-base">Welcome back, {user?.full_name}</p>
+              <p className="text-red-100 text-sm sm:text-base">Welcome back, {user?.full_name}</p>
             </div>
             <div className="flex flex-wrap justify-center sm:justify-end gap-2">
-              <span className="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                ● System Operational
-              </span>
-              <span className="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                Admin User
-              </span>
             </div>
           </div>
         </div>

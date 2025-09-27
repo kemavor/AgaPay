@@ -3,6 +3,7 @@
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import { useEffect, ReactNode } from 'react'
+// import LinearBuffer from './LinearBuffer'
 
 interface ProtectedRouteProps {
   children: ReactNode
@@ -34,9 +35,11 @@ export function ProtectedRoute({ children, requiredRole = 'admin' }: ProtectedRo
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-black">Loading...</p>
+        <div className="text-center max-w-md mx-auto">
+          <div className="mb-4">
+            <div className="loader mx-auto"></div>
+          </div>
+          <p className="text-black">Loading...</p>
         </div>
       </div>
     )

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import LinearBuffer from './LinearBuffer';
 
 interface PaymentData {
   amount: string;
@@ -285,7 +286,16 @@ export default function SimplePaymentWizard() {
                       : 'bg-green-600 text-white hover:bg-green-700'
                   }`}
                 >
-                  {isProcessing ? 'Processing...' : `Pay ₵${paymentData.amount}`}
+                  {isProcessing ? (
+                    <div className="flex flex-col items-center w-full">
+                      <div className="w-full mb-2">
+                        <LinearBuffer />
+                      </div>
+                      <span>Processing...</span>
+                    </div>
+                  ) : (
+                    `Pay ₵${paymentData.amount}`
+                  )}
                 </button>
               )}
             </div>

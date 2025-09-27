@@ -10,7 +10,12 @@
       "Bash(taskkill:*)",
       "Bash(tasklist:*)",
       "Bash(findstr:*)",
-      "Bash(powershell:*)"
+      "Bash(powershell:*)",
+      "Bash(npm run lint)",
+      "Bash(start:*)",
+      "Read(//c/Users/KSI/Downloads/**)",
+      "Bash(cat:*)",
+      "Bash(netstat:*)"
     ],
     "deny": [],
     "ask": []
