@@ -63,10 +63,10 @@
 .loader {
   width: 45px;
   aspect-ratio: .75;
-  --c: no-repeat linear-gradient(#000 0 0);
+  --c: no-repeat linear-gradient(#dc2626 0 0);
   background:
     var(--c) 0%   50%,
-    var(--c) 50%  50%,
+    var(--c) 50%  50%
     var(--c) 100% 50%;
   animation: l7 1s infinite linear alternate;
 }
