@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 381.73 280.57">
+  <defs>
+    <style>
+      .cls-1 {
+        letter-spacing: -.05em;
+      }
+
+      .cls-1, .cls-2 {
+        fill: #be1e2d;
+      }
+
+      .cls-3 {
+        fill: url(#linear-gradient);
+        stroke-width: 0px;
+      }
+
+      .cls-4 {
+        fill: #bc2026;
+        letter-spacing: -.1em;
+      }
+
+      .cls-5 {
+        font-family: Qielftan, Qielftan;
+        font-size: 98.42px;
+      }
+
+      .cls-6 {
+        letter-spacing: -.07em;
+      }
+
+      .cls-6, .cls-7, .cls-8 {
+        fill: #fff;
+      }
+
+      .cls-7 {
+        letter-spacing: -.16em;
+      }
+
+      .cls-2 {
+        letter-spacing: -.09em;
+      }
+
+      .cls-8 {
+        letter-spacing: -.07em;
+      }
+    </style>
+    <linearGradient id="linear-gradient" x1="157.23" y1="181.47" x2="381.73" y2="181.47" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#be2627"/>
+      <stop offset=".85" stop-color="#bd2626"/>
+    </linearGradient>
+  </defs>
+  <path class="cls-3" d="M251.22,127.36c.91-7.3-20.78-17.99-25.52-19.54-40.02-13.02-76.55,27.31-66.89,65.72,6.47,25.74,29.24,40.71,46.95,58.46,15.65,15.69,30.62,32.13,45.47,48.57-4.58-5.07,71.55-48.44,77.28-51.81,40.89-24.03,70.48-77.63,41.83-122.35-25.97-40.52-108.19-27.29-119.11,20.95Z"/>
+  <text class="cls-5" transform="translate(0 179.47)"><tspan class="cls-4" x="0" y="0">a</tspan><tspan class="cls-1" x="58.86" y="0">g</tspan><tspan class="cls-2" x="116.82" y="0">a</tspan><tspan class="cls-6" x="176.17" y="0">p</tspan><tspan class="cls-7" x="239.16" y="0">a</tspan><tspan class="cls-8" x="291.72" y="0">y</tspan></text>
+</svg>

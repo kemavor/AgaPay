@@ -36,12 +36,19 @@ export default function AdminCollectionsPage() {
   const router = useRouter();
 
   useEffect(() => {
+    // Check authentication on component mount
+    const token = localStorage.getItem('admin_token');
+    if (!token) {
+      router.push('/admin/login');
+      return;
+    }
+
     fetchCollections();
   }, []);
 
   const fetchCollections = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('admin_token');
       if (!token) {
         router.push('/admin/login');
         return;
@@ -55,7 +62,11 @@ export default function AdminCollectionsPage() {
 
       if (response.ok) {
         const data = await response.json();
-        setCollections(data);
+        setCollections(data || []);
+      } else if (response.status === 401) {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+        router.push('/admin/login');
       } else {
         setError('Failed to fetch collections');
       }
@@ -70,7 +81,7 @@ export default function AdminCollectionsPage() {
     e.preventDefault();
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('admin_token');
       if (!token) {
         router.push('/admin/login');
         return;
@@ -83,7 +94,7 @@ export default function AdminCollectionsPage() {
         end_date: formData.end_date || null
       };
 
-      const response = await fetch('/api/collections', {
+      const response = await fetch('/api/collections/my-collections', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -104,6 +115,10 @@ export default function AdminCollectionsPage() {
           end_date: ''
         });
         fetchCollections();
+      } else if (response.status === 401) {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+        router.push('/admin/login');
       } else {
         setError('Failed to create collection');
       }

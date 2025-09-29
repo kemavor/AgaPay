@@ -35,15 +35,25 @@ export function LoginForm({
   }
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-red-50 to-pink-50 flex items-center justify-center p-4 ${className}`} {...props}>
-      <div className="w-full max-w-md max-h-[90vh] overflow-y-auto">
+    <div className={`min-h-screen relative flex items-center justify-center p-4 ${className}`} {...props}>
+      {/* Background Images */}
+      <div className="absolute inset-0 z-0">
+        <img
+          src="/friends.png"
+          alt="Friends background"
+          className="absolute inset-0 w-full h-full object-cover opacity-100"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-red-900/30 to-pink-900/30"></div>
+      </div>
+
+      <div className="w-full max-w-md max-h-[90vh] overflow-y-auto relative z-10">
         {/* Logo and Brand */}
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center w-12 h-12 bg-red-600 rounded-full mb-3">
             <span className="text-white text-xl font-bold">A</span>
           </div>
-          <h1 className="text-xl font-bold text-gray-900 mb-1">Welcome to AgaPay</h1>
-          <p className="text-sm text-gray-600">Admin Dashboard Access</p>
+          <h1 className="text-xl font-bold text-white mb-1">Welcome to AgaPay</h1>
+          <p className="text-sm text-white/90">Admin Dashboard Access</p>
         </div>
 
         {/* Login Card */}
@@ -167,7 +177,7 @@ export function LoginForm({
         </div>
 
         {/* Footer */}
-        <div className="text-center mt-4 text-xs text-gray-500">
+        <div className="text-center mt-4 text-xs text-white/80">
           <p>© 2024 AgaPay. All rights reserved.</p>
         </div>
       </div>

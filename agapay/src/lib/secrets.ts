@@ -11,17 +11,9 @@ interface GoogleOAuthSecrets {
   redirect_uris: string[]
 }
 
-interface AppleOAuthSecrets {
-  client_id: string
-  client_secret: string
-  team_id: string
-  key_id: string
-}
-
 class SecretManager {
   private static instance: SecretManager
   private googleSecrets: GoogleOAuthSecrets | null = null
-  private appleSecrets: AppleOAuthSecrets | null = null
 
   static getInstance(): SecretManager {
     if (!SecretManager.instance) {
@@ -71,7 +63,7 @@ class SecretManager {
               // Update redirect URI to match our development server
               this.googleSecrets.redirect_uris = ['http://localhost:3000']
 
-              console.log('✅ Google OAuth secrets loaded from local file (development mode)')
+              console.log(' Google OAuth secrets loaded from local file (development mode)')
               return this.googleSecrets
             }
           } catch (error) {
@@ -79,7 +71,7 @@ class SecretManager {
           }
         }
       } catch (error) {
-        console.warn('⚠️ Could not load Google OAuth secrets from local file')
+        console.warn(' Could not load Google OAuth secrets from local file')
       }
     }
 
@@ -88,30 +80,6 @@ class SecretManager {
       '1. Set environment variables: GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET\n' +
       '2. Or place client_secret JSON file in the project directory for development'
     )
-  }
-
-  // Load Apple OAuth secrets from environment
-  async loadAppleSecrets(): Promise<AppleOAuthSecrets> {
-    const clientId = process.env.APPLE_CLIENT_ID
-    const clientSecret = process.env.APPLE_CLIENT_SECRET
-    const teamId = process.env.APPLE_TEAM_ID
-    const keyId = process.env.APPLE_KEY_ID
-
-    if (!clientId || !clientSecret) {
-      throw new Error(
-        'Apple OAuth secrets not found. Please set environment variables:\n' +
-        'APPLE_CLIENT_ID, APPLE_CLIENT_SECRET, APPLE_TEAM_ID, APPLE_KEY_ID'
-      )
-    }
-
-    this.appleSecrets = {
-      client_id: clientId,
-      client_secret: clientSecret,
-      team_id: teamId || '',
-      key_id: keyId || ''
-    }
-
-    return this.appleSecrets
   }
 
   // Get Google client ID (public, safe to expose)
@@ -130,29 +98,9 @@ class SecretManager {
     return this.googleSecrets.client_secret
   }
 
-  // Get Apple client ID (public, safe to expose)
-  getAppleClientId(): string {
-    if (!this.appleSecrets) {
-      throw new Error('Apple secrets not loaded. Call loadAppleSecrets() first.')
-    }
-    return this.appleSecrets.client_id
-  }
-
-  // Get Apple client secret (private, never expose to client)
-  getAppleClientSecret(): string {
-    if (!this.appleSecrets) {
-      throw new Error('Apple secrets not loaded. Call loadAppleSecrets() first.')
-    }
-    return this.appleSecrets.client_secret
-  }
-
   // Check if secrets are loaded
   isGoogleLoaded(): boolean {
     return this.googleSecrets !== null
-  }
-
-  isAppleLoaded(): boolean {
-    return this.appleSecrets !== null
   }
 }
 
@@ -171,13 +119,6 @@ export const publicConfig = {
     redirectUri: process.env.NEXTAUTH_URL
       ? `${process.env.NEXTAUTH_URL}/api/auth/google/callback`
       : 'http://localhost:3000/api/auth/google/callback'
-  },
-  apple: {
-    clientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID || '',
-    scopes: ['name', 'email'],
-    redirectUri: process.env.NEXTAUTH_URL
-      ? `${process.env.NEXTAUTH_URL}/api/auth/apple/callback`
-      : 'http://localhost:3000/api/auth/apple/callback'
   }
 }
 
@@ -187,12 +128,9 @@ export async function initializeSecrets() {
     if (!secretManager.isGoogleLoaded()) {
       await secretManager.loadGoogleSecrets()
     }
-    if (!secretManager.isAppleLoaded()) {
-      await secretManager.loadAppleSecrets()
-    }
-    console.log('✅ OAuth secrets initialized successfully')
+    console.log('OAuth secrets initialized successfully')
   } catch (error) {
-    console.error('❌ Failed to initialize OAuth secrets:', error)
+    console.error('Failed to initialize OAuth secrets:', error)
     // Don't throw error in production to allow app to start
     if (process.env.NODE_ENV !== 'production') {
       throw error

@@ -15,7 +15,8 @@
       "Bash(start:*)",
       "Read(//c/Users/KSI/Downloads/**)",
       "Bash(cat:*)",
-      "Bash(netstat:*)"
+      "Bash(netstat:*)",
+      "Bash(copy:*)"
     ],
     "deny": [],
     "ask": []

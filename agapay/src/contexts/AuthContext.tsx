@@ -1,7 +1,6 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect } from 'react'
-import { oauthService } from '@/lib/oauth-service'
 
 interface User {
   id: number | string
@@ -10,7 +9,7 @@ interface User {
   phone?: string
   full_name?: string
   is_active?: boolean
-  provider?: 'google' | 'apple' | 'local'
+  provider?: 'google' | 'local'
   picture?: string
 }
 
@@ -19,7 +18,7 @@ interface AuthContextType {
   token: string | null
   isLoading: boolean
   login: (email: string, password: string) => Promise<boolean>
-  oauthLogin: (provider: 'google' | 'apple') => void
+  oauthLogin: (provider: 'google') => void
   logout: () => void
   isAuthenticated: boolean
 }
@@ -41,13 +40,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
           // Check if it's an OAuth token
           if (savedToken.startsWith('oauth_')) {
-            const oauthUser = oauthService.verifyToken(savedToken)
-            if (oauthUser) {
+            // For now, just validate with the backend
+            const response = await fetch('http://localhost:8000/api/auth/me', {
+              headers: { 'Authorization': `Bearer ${savedToken}` },
+            })
+            if (response.ok) {
+              const userData = await response.json()
               setToken(savedToken)
               setUser({
-                ...oauthUser,
-                name: oauthUser.name,
-                provider: oauthUser.provider
+                id: userData.id,
+                email: userData.email,
+                name: userData.name,
+                provider: userData.provider
               })
             } else {
               // Invalid OAuth token
@@ -128,7 +132,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const oauthLogin = async (provider: 'google' | 'apple') => {
+  const oauthLogin = async (provider: 'google') => {
     try {
       if (provider === 'google') {
         // Use API endpoint to get auth URL (server-side secret handling)
@@ -137,9 +141,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           throw new Error('Failed to initialize Google OAuth')
         }
         const { authUrl } = await response.json()
-        window.location.href = authUrl
-      } else if (provider === 'apple') {
-        const authUrl = await oauthService.getAppleAuthUrl()
         window.location.href = authUrl
       }
     } catch (error) {

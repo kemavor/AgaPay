@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import { useAuth } from '@/contexts/AuthContext'
 // import LinearBuffer from '@/components/LinearBuffer'
 import { Card, CardHeader, CardBody, Image, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button } from '@heroui/react'
+import { PaymentForm } from '@/components/PaymentForm'
 
 interface Collection {
   id: number
@@ -312,6 +313,28 @@ export default function ContributionsPage() {
                 <DropdownItem key="completed" className="text-black hover:bg-red-50">Completed</DropdownItem>
               </DropdownMenu>
             </Dropdown>
+          </div>
+        </div>
+      </section>
+
+      {/* Quick Payment Section */}
+      <section className="py-12 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-black mb-2">Quick Payment</h2>
+            <p className="text-gray-600">Make a quick contribution without selecting a specific cause</p>
+          </div>
+
+          <div className="bg-red-50 rounded-lg p-6">
+            <PaymentForm
+              defaultAmount={1000}
+              onSuccess={(reference) => {
+                console.log('Payment successful:', reference)
+              }}
+              onError={(error) => {
+                console.error('Payment error:', error)
+              }}
+            />
           </div>
         </div>
       </section>

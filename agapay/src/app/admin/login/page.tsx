@@ -33,7 +33,7 @@ export default function LoginPage() {
     return (
       <div className="min-h-svh flex items-center justify-center bg-gradient-to-br from-red-50 to-pink-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto mb-4"></div>
+          <div className="loader mx-auto mb-4"></div>
           <p className="text-gray-600">Loading...</p>
         </div>
       </div>
