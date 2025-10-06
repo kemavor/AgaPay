@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getApiUrl } from '@/lib/config'
+import PaystackPop from '@paystack/inline-js'
 
 interface PaymentFormProps {
   className?: string
@@ -56,14 +57,47 @@ export function PaymentForm({ className, defaultAmount = 1000, onSuccess, onErro
         throw new Error(data.error || 'Failed to initialize payment')
       }
 
-      // Redirect to Paystack payment page
-      window.location.href = data.data.authorization_url
+      // Store payment details for success page
+      sessionStorage.setItem('payment_reference', data.data.reference)
+      sessionStorage.setItem('payment_amount', amount.toString())
+      sessionStorage.setItem('payment_email', email)
+
+      // Use Paystack inline popup instead of redirect
+      const paystack = new PaystackPop()
+      paystack.resumeTransaction(data.data.access_code, {
+        onSuccess: (transaction: any) => {
+          console.log('Payment successful:', transaction)
+          onSuccess?.(transaction.reference)
+          setIsProcessing(false)
+          // Redirect to success page with reference
+          router.push(`/payment/success?reference=${transaction.reference}`)
+        },
+        onCancel: () => {
+          console.log('Payment cancelled')
+          setError('Payment was cancelled')
+          onError?.('Payment was cancelled')
+          setIsProcessing(false)
+          // Clear session storage on cancel
+          sessionStorage.removeItem('payment_reference')
+          sessionStorage.removeItem('payment_amount')
+          sessionStorage.removeItem('payment_email')
+        },
+        onError: (error: any) => {
+          console.error('Payment error:', error)
+          setError('Payment failed. Please try again.')
+          onError?.('Payment failed')
+          setIsProcessing(false)
+          // Clear session storage on error
+          sessionStorage.removeItem('payment_reference')
+          sessionStorage.removeItem('payment_amount')
+          sessionStorage.removeItem('payment_email')
+        }
+      })
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Payment initialization failed'
       setError(errorMessage)
       onError?.(errorMessage)
-    } finally {
       setIsProcessing(false)
     }
   }

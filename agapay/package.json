@@ -13,6 +13,7 @@
     "@emotion/styled": "^11.14.1",
     "@heroui/react": "^2.8.4",
     "@mui/material": "^7.3.2",
+    "@paystack/inline-js": "^2.22.7",
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-slot": "^1.2.3",
     "class-variance-authority": "^0.7.1",
