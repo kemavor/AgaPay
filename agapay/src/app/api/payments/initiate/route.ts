@@ -4,7 +4,7 @@ import { paystackService } from '@/lib/paystack-service'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { email, amount, currency = 'NGN', metadata } = body
+    const { email, amount, currency = 'GHS', metadata } = body
 
     // Validate required fields
     if (!email || !amount) {

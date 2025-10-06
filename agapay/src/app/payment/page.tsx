@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { getApiUrl } from '@/lib/config';
 
 interface Collection {
   id: number;
@@ -22,6 +23,8 @@ export default function PaymentPage() {
   const searchParams = useSearchParams();
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedCollection, setSelectedCollection] = useState<Collection | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentError, setPaymentError] = useState('');
   const [formData, setFormData] = useState({
     amount: '',
     email: '',
@@ -65,6 +68,61 @@ export default function PaymentPage() {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handlePayment = async () => {
+    setIsProcessing(true);
+    setPaymentError('');
+
+    try {
+      // Validate input
+      if (!formData.email || !formData.amount) {
+        throw new Error('Email and amount are required');
+      }
+
+      if (parseFloat(formData.amount) <= 0) {
+        throw new Error('Amount must be greater than 0');
+      }
+
+      // Prepare payment data
+      const paymentData = {
+        email: formData.email,
+        amount: parseFloat(formData.amount),
+        currency: 'GHS',
+        metadata: {
+          platform: 'AgaPay',
+          purpose: selectedCollection ? `Contribution to ${selectedCollection.title}` : 'General Payment',
+          collection_id: formData.collection_id,
+          payment_method: formData.method,
+          provider: formData.provider,
+          phone: formData.phone
+        }
+      };
+
+      // Initialize payment with Paystack
+      const response = await fetch('/api/payments/initiate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(paymentData)
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to initialize payment');
+      }
+
+      // Redirect to Paystack payment page
+      window.location.href = data.data.authorization_url;
+
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Payment initialization failed';
+      setPaymentError(errorMessage);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const formatCurrency = (amount: number, currency: string) => {
@@ -271,6 +329,12 @@ export default function PaymentPage() {
             {renderStep()}
           </div>
 
+          {paymentError && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600 text-sm">{paymentError}</p>
+            </div>
+          )}
+
           <div className="flex justify-between">
             {currentStep > 1 && (
               <button
@@ -296,10 +360,18 @@ export default function PaymentPage() {
               </button>
             ) : (
               <button
-                onClick={() => alert('Payment processed successfully!')}
+                onClick={handlePayment}
                 className="ml-auto px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                disabled={isProcessing}
               >
-                Pay ₵{formData.amount}
+                {isProcessing ? (
+                  <div className="flex items-center">
+                    <div className="loader-mini mr-2"></div>
+                    Processing...
+                  </div>
+                ) : (
+                  `Pay ₵${formData.amount}`
+                )}
               </button>
             )}
           </div>

@@ -97,3 +97,12 @@ export function updateCollectionAmount(id: number, amount: number): void {
     collection.current_amount += amount;
   }
 }
+
+export function updateCollectionTotal(id: number, amount: number): Collection | null {
+  const collection = collections.find(c => c.id === id);
+  if (collection) {
+    collection.current_amount += amount;
+    return collection;
+  }
+  return null;
+}

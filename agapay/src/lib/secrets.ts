@@ -61,10 +61,16 @@ class SecretManager {
               this.googleSecrets = secretData.web
 
               // Update redirect URI to match our development server
-              this.googleSecrets.redirect_uris = ['http://localhost:3000']
+              if (this.googleSecrets) {
+                this.googleSecrets.redirect_uris = ['http://localhost:3000']
+              }
 
               console.log(' Google OAuth secrets loaded from local file (development mode)')
-              return this.googleSecrets
+              if (this.googleSecrets) {
+                return this.googleSecrets
+              } else {
+                throw new Error('Failed to load Google OAuth secrets')
+              }
             }
           } catch (error) {
             // Continue to next path

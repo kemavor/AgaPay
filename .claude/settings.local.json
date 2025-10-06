@@ -16,7 +16,11 @@
       "Read(//c/Users/KSI/Downloads/**)",
       "Bash(cat:*)",
       "Bash(netstat:*)",
-      "Bash(copy:*)"
+      "Bash(copy:*)",
+      "Bash(dir:*)",
+      "Bash(timeout:*)",
+      "Bash(xargs:*)",
+      "Bash(NODE_ENV=development npm run build)"
     ],
     "deny": [],
     "ask": []

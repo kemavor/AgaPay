@@ -172,15 +172,29 @@ export default function ContributionsPage() {
   const filterStatus = Array.from(selectedKeys)[0] || 'all'
 
   useEffect(() => {
-    fetchCollections()
+    // Check if user is returning from payment success
+    const urlParams = new URLSearchParams(window.location.search)
+    const fromPayment = urlParams.get('from') === 'payment'
+
+    fetchCollections(fromPayment)
+
+    // Clear the URL parameter
+    if (fromPayment) {
+      window.history.replaceState({}, '', window.location.pathname)
+    }
   }, [])
 
-  const fetchCollections = async () => {
+  const fetchCollections = async (showRefreshMessage = false) => {
     try {
       const response = await fetch('/api/collections')
       if (!response.ok) throw new Error('Failed to fetch collections')
       const data = await response.json()
       setCollections(data.collections || [])
+
+      if (showRefreshMessage) {
+        // Briefly show a success message to indicate data was refreshed
+        console.log('Collections refreshed with latest totals')
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch collections')
     } finally {
@@ -305,7 +319,7 @@ export default function ContributionsPage() {
                 selectedKeys={selectedKeys}
                 selectionMode="single"
                 variant="flat"
-                onSelectionChange={setSelectedKeys}
+                onSelectionChange={(keys) => setSelectedKeys(new Set(Array.from(keys).map(k => String(k))))}
                 className="bg-white border border-gray-200 shadow-lg"
               >
                 <DropdownItem key="all" className="text-black hover:bg-red-50">All Status</DropdownItem>

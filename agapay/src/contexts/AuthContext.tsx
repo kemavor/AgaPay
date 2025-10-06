@@ -1,6 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect } from 'react'
+import { getApiUrl } from '@/lib/config'
 
 interface User {
   id: number | string
@@ -39,9 +40,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (savedToken && savedUser) {
         try {
           // Check if it's an OAuth token
-          if (savedToken.startsWith('oauth_')) {
+          if (savedToken.startsWith('google_')) {
             // For now, just validate with the backend
-            const response = await fetch('http://localhost:8000/api/auth/me', {
+            const response = await fetch(getApiUrl('/api/auth/me'), {
               headers: { 'Authorization': `Bearer ${savedToken}` },
             })
             if (response.ok) {
@@ -60,7 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
           } else {
             // Validate regular token by making a request to the /me endpoint
-            const response = await fetch('http://localhost:8000/api/auth/me', {
+            const response = await fetch(getApiUrl('/api/auth/me'), {
               headers: {
                 'Authorization': `Bearer ${savedToken}`,
               },
@@ -91,7 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const response = await fetch('http://localhost:8000/api/auth/login', {
+      const response = await fetch(getApiUrl('/api/auth/login'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -104,7 +105,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setToken(data.access_token)
 
         // Get user info (you might need to decode the JWT or create a /me endpoint)
-        const userResponse = await fetch('http://localhost:8000/api/auth/me', {
+        const userResponse = await fetch(getApiUrl('/api/auth/me'), {
           headers: {
             'Authorization': `Bearer ${data.access_token}`,
           },

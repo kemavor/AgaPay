@@ -15,6 +15,7 @@ from schemas.payment import (
 )
 from services.paystack import PaystackService
 from core.config import settings
+from routers.auth import get_current_user
 
 router = APIRouter()
 
@@ -22,7 +23,8 @@ router = APIRouter()
 @router.post("/initialize", response_model=dict)
 async def initialize_payment(
     payment_data: PaymentInitialize,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """Initialize a payment transaction"""
 
@@ -32,13 +34,13 @@ async def initialize_payment(
     # Create payment record
     payment = Payment(
         reference=reference,
-        user_id=1,  # TODO: Get from auth token
+        user_id=current_user.id,
         collection_id=payment_data.collection_id,  # Link to collection if provided
         amount=payment_data.amount,
         currency="GHS",
         payment_method=payment_data.payment_method,
         customer_email=payment_data.email,
-        customer_name="Customer",  # TODO: Get from user
+        customer_name=current_user.full_name,
         status=PaymentStatus.PENDING
     )
 
@@ -86,7 +88,8 @@ async def initialize_payment(
 @router.post("/mobile-money", response_model=dict)
 async def process_mobile_money_payment(
     payment_data: MobileMoneyPayment,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """Process mobile money payment for Ghana"""
 
@@ -96,7 +99,7 @@ async def process_mobile_money_payment(
     # Create payment record
     payment = Payment(
         reference=reference,
-        user_id=1,  # TODO: Get from auth token
+        user_id=current_user.id,
         amount=payment_data.amount,
         currency="GHS",
         payment_method=PaymentMethod.MOBILE_MONEY,
@@ -204,19 +207,19 @@ async def paystack_webhook(
     # Get raw body
     body = await request.body()
 
-    # Verify signature (implement this in production)
-    # paystack_service = PaystackService()
-    # if not paystack_service.verify_webhook_signature(body, signature):
-    #     raise HTTPException(
-    #         status_code=status.HTTP_400_BAD_REQUEST,
-    #         detail="Invalid signature"
-    #     )
+    # Verify signature
+    paystack_service = PaystackService()
+    if not paystack_service.verify_webhook_signature(body, signature):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid signature"
+        )
 
     # Parse webhook data
     try:
         import json
         webhook_data = json.loads(body)
-    except:
+    except json.JSONDecodeError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid JSON"
@@ -225,36 +228,62 @@ async def paystack_webhook(
     event = webhook_data.get("event")
     data = webhook_data.get("data")
 
-    if event == "charge.success":
-        # Update payment status
-        reference = data.get("reference")
-        payment = db.query(Payment).filter(Payment.reference == reference).first()
+    if not event or not data:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Missing event or data in webhook payload"
+        )
 
-        if payment:
-            payment.status = PaymentStatus.SUCCESS
-            payment.paystack_transaction_id = str(data.get("id"))
-            payment.processed_at = datetime.utcnow()
+    try:
+        if event == "charge.success":
+            # Update payment status
+            reference = data.get("reference")
+            if not reference:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Missing reference in webhook data"
+                )
 
-            # Update collection amount if payment is successful and linked to a collection
-            if payment.collection_id:
-                collection = db.query(Collection).filter(Collection.id == payment.collection_id).first()
-                if collection:
-                    collection.current_amount += payment.amount
-                    collection.updated_at = datetime.utcnow()
+            payment = db.query(Payment).filter(Payment.reference == reference).first()
 
-            db.commit()
+            if payment:
+                payment.status = PaymentStatus.SUCCESS
+                payment.paystack_transaction_id = str(data.get("id"))
+                payment.processed_at = datetime.utcnow()
 
-    elif event == "charge.failed":
-        # Update payment status
-        reference = data.get("reference")
-        payment = db.query(Payment).filter(Payment.reference == reference).first()
+                # Update collection amount if payment is successful and linked to a collection
+                if payment.collection_id:
+                    collection = db.query(Collection).filter(Collection.id == payment.collection_id).first()
+                    if collection:
+                        collection.current_amount += payment.amount
+                        collection.updated_at = datetime.utcnow()
 
-        if payment:
-            payment.status = PaymentStatus.FAILED
-            payment.processed_at = datetime.utcnow()
-            db.commit()
+                db.commit()
 
-    return {"status": "success"}
+        elif event == "charge.failed":
+            # Update payment status
+            reference = data.get("reference")
+            if not reference:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Missing reference in webhook data"
+                )
+
+            payment = db.query(Payment).filter(Payment.reference == reference).first()
+
+            if payment:
+                payment.status = PaymentStatus.FAILED
+                payment.processed_at = datetime.utcnow()
+                db.commit()
+
+        return {"status": "success"}
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error processing webhook: {str(e)}"
+        )
 
 
 @router.get("/stats", response_model=PaymentStats)

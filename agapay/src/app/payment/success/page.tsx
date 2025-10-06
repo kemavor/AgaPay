@@ -29,6 +29,11 @@ export default function PaymentSuccessPage() {
         if (data.success) {
           setStatus('success')
           setPaymentData(data.data)
+
+          // Update collection total if this was a collection contribution
+          if (data.data.metadata?.collection_id) {
+            await updateCollectionTotal(data.data.metadata.collection_id, data.data.amount)
+          }
         } else {
           setStatus('failed')
         }
@@ -42,6 +47,27 @@ export default function PaymentSuccessPage() {
 
     verifyPayment()
   }, [searchParams])
+
+  const updateCollectionTotal = async (collectionId: string, amount: number) => {
+    try {
+      const response = await fetch('/api/collections/update-total', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          collection_id: collectionId,
+          amount: amount
+        })
+      })
+
+      if (response.ok) {
+        console.log('Collection total updated successfully')
+      }
+    } catch (error) {
+      console.error('Failed to update collection total:', error)
+    }
+  }
 
   if (verifying) {
     return (
@@ -65,7 +91,12 @@ export default function PaymentSuccessPage() {
               </svg>
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Payment Successful!</h1>
-            <p className="text-gray-600 mb-6">Your payment has been processed successfully.</p>
+            <p className="text-gray-600 mb-6">
+              {paymentData?.metadata?.collection_id
+                ? `Your contribution to "${paymentData.metadata.purpose}" has been processed successfully.`
+                : 'Your payment has been processed successfully.'
+              }
+            </p>
 
             {paymentData && (
               <div className="bg-gray-50 rounded-lg p-4 mb-6 text-left">
@@ -94,7 +125,7 @@ export default function PaymentSuccessPage() {
 
             <div className="space-y-3">
               <Link
-                href="/contributions"
+                href="/contributions?from=payment"
                 className="w-full bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors block text-center"
               >
                 Make Another Payment

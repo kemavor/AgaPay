@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { getApiUrl } from '@/lib/config'
 
 interface PaymentFormProps {
   className?: string
@@ -41,7 +42,7 @@ export function PaymentForm({ className, defaultAmount = 1000, onSuccess, onErro
         body: JSON.stringify({
           email,
           amount,
-          currency: 'NGN',
+          currency: 'GHS',
           metadata: {
             platform: 'AgaPay',
             purpose: 'Payment'

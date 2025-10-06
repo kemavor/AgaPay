@@ -178,7 +178,7 @@ export function LoginForm({
 
         {/* Footer */}
         <div className="text-center mt-4 text-xs text-white/80">
-          <p>© 2024 AgaPay. All rights reserved.</p>
+          <p>© 2025 AgaPay. All rights reserved.</p>
         </div>
       </div>
     </div>

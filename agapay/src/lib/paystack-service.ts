@@ -49,17 +49,24 @@ class PaystackService {
   private baseUrl: string
 
   constructor() {
-    this.secretKey = process.env.PAYSTACK_SECRET_KEY || ''
+    this.secretKey = process.env.PAYSTACK_SECRET_KEY || process.env.NEXT_PUBLIC_PAYSTACK_SECRET_KEY || ''
     this.baseUrl = 'https://api.paystack.co'
 
-    if (!this.secretKey) {
-      console.warn('⚠️ Paystack secret key not configured')
+    if (!this.secretKey || this.secretKey.includes('your_') || this.secretKey.includes('1234567890abcdef')) {
+      console.warn('⚠️ Paystack secret key not properly configured.')
+      console.warn('Please set PAYSTACK_SECRET_KEY with your actual Paystack test secret key.')
+      console.warn('Get your keys from: https://dashboard.paystack.co/#/settings/developers')
     }
   }
 
   // Initialize a payment transaction
   async initializePayment(paymentData: PaystackPaymentRequest): Promise<PaystackTransactionResponse> {
     try {
+      // Check if Paystack is configured
+      if (!this.secretKey || this.secretKey.includes('your_') || this.secretKey.includes('1234567890abcdef')) {
+        throw new Error('Paystack secret key not configured. Please get actual test keys from https://dashboard.paystack.co/#/settings/developers and update your .env.local file.')
+      }
+
       const response = await fetch(`${this.baseUrl}/transaction/initialize`, {
         method: 'POST',
         headers: {
@@ -71,10 +78,13 @@ class PaystackService {
 
       if (!response.ok) {
         const errorData = await response.json()
+        console.error('Paystack API error:', errorData)
         throw new Error(errorData.message || 'Failed to initialize payment')
       }
 
-      return await response.json()
+      const result = await response.json()
+      console.log('Paystack initialization success:', result)
+      return result
     } catch (error) {
       console.error('Paystack initialization error:', error)
       throw error
@@ -84,6 +94,11 @@ class PaystackService {
   // Verify a payment transaction
   async verifyTransaction(reference: string): Promise<PaystackVerificationResponse> {
     try {
+      // Check if Paystack is configured
+      if (!this.secretKey || this.secretKey.includes('your_') || this.secretKey.includes('1234567890abcdef')) {
+        throw new Error('Paystack secret key not configured. Please get actual test keys from https://dashboard.paystack.co/#/settings/developers and update your .env.local file.')
+      }
+
       const response = await fetch(`${this.baseUrl}/transaction/verify/${reference}`, {
         method: 'GET',
         headers: {

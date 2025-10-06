@@ -10,10 +10,17 @@ class PaystackService:
     def __init__(self):
         self.secret_key = settings.PAYSTACK_SECRET_KEY
         self.base_url = "https://api.paystack.co"
-        self.headers = {
-            "Authorization": f"Bearer {self.secret_key}",
-            "Content-Type": "application/json"
-        }
+
+        if not self.secret_key:
+            print("Warning: Paystack secret key not configured. Payment features will be limited.")
+            self.headers = {
+                "Content-Type": "application/json"
+            }
+        else:
+            self.headers = {
+                "Authorization": f"Bearer {self.secret_key}",
+                "Content-Type": "application/json"
+            }
 
     async def initialize_transaction(
         self,
@@ -23,6 +30,12 @@ class PaystackService:
         callback_url: Optional[str] = None
     ) -> Dict[str, Any]:
         """Initialize a transaction with Paystack"""
+
+        if not self.secret_key:
+            return {
+                "status": False,
+                "message": "Paystack not configured. Please set PAYSTACK_SECRET_KEY in environment."
+            }
 
         payload = {
             "amount": amount,

@@ -45,8 +45,17 @@ def verify_token(token: str) -> Optional[str]:
         email: str = payload.get("sub")
         if email is None:
             return None
+
+        # Check if token is expired
+        exp = payload.get("exp")
+        if exp and datetime.utcnow().timestamp() > exp:
+            return None
+
         return email
     except JWTError:
+        return None
+    except Exception as e:
+        print(f"Token verification error: {e}")
         return None
 
 
