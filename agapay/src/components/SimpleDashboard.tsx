@@ -9,22 +9,49 @@ import {
 } from "@heroui/react";
 import { ChevronDown } from 'lucide-react';
 
-const recentTransactions = [
-  { id: 'TXN001', amount: 2500, method: 'Card', status: 'Success', date: '2024-01-15' },
-  { id: 'TXN002', amount: 1500, method: 'Bank Transfer', status: 'Success', date: '2024-01-14' },
-  { id: 'TXN003', amount: 3200, method: 'USSD', status: 'Success', date: '2024-01-13' },
-  { id: 'TXN004', amount: 1800, method: 'Card', status: 'Failed', date: '2024-01-12' },
-];
 
 export default function SimpleDashboard() {
   const [timeRange, setTimeRange] = useState('month');
   const [isMounted, setIsMounted] = useState(false);
+  const [dashboardData, setDashboardData] = useState({
+    totalRevenue: 0,
+    totalTransactions: 0,
+    recentTransactions: []
+  });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setIsMounted(true);
+    fetchDashboardData();
   }, []);
 
-  if (!isMounted) {
+  const fetchDashboardData = async () => {
+    try {
+      const [paymentsResponse, collectionsResponse] = await Promise.all([
+        fetch('/api/payments'),
+        fetch('/api/collections/my-collections')
+      ]);
+
+      if (paymentsResponse.ok) {
+        const paymentsData = await paymentsResponse.json();
+        const successfulPayments = paymentsData.payments?.filter(p => p.status === 'success') || [];
+        const totalRevenue = successfulPayments.reduce((sum: number, payment: any) => sum + payment.amount, 0);
+
+        setDashboardData(prev => ({
+          ...prev,
+          totalRevenue,
+          totalTransactions: successfulPayments.length,
+          recentTransactions: successfulPayments.slice(0, 10)
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to fetch dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!isMounted || loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -105,16 +132,20 @@ export default function SimpleDashboard() {
           <div className="bg-red-600 text-white rounded-lg shadow p-6 hover:shadow-md transition-shadow">
             <div className="text-center">
               <p className="text-lg font-semibold text-white/95">Total Revenue</p>
-              <p className="text-3xl sm:text-4xl font-bold text-white mt-2">1,423,000</p>
-              <p className="text-xs sm:text-sm text-green-300 mt-1">+12.5% from last month</p>
+              <p className="text-3xl sm:text-4xl font-bold text-white mt-2">
+                {dashboardData.totalRevenue.toLocaleString()}
+              </p>
+              <p className="text-xs sm:text-sm text-green-300 mt-1">From all successful transactions</p>
             </div>
           </div>
 
           <div className="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow">
             <div className="text-center">
               <p className="text-sm font-medium text-black">Transactions</p>
-              <p className="text-3xl sm:text-4xl font-bold text-gray-900 mt-2">1,131</p>
-              <p className="text-xs sm:text-sm text-green-600 mt-1">+8.2% from last month</p>
+              <p className="text-3xl sm:text-4xl font-bold text-gray-900 mt-2">
+                {dashboardData.totalTransactions}
+              </p>
+              <p className="text-xs sm:text-sm text-green-600 mt-1">Successful payments</p>
             </div>
           </div>
         </div>
@@ -145,21 +176,31 @@ export default function SimpleDashboard() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {recentTransactions.map((transaction) => (
-                  <tr key={transaction.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{transaction.id}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₵{transaction.amount.toLocaleString()}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black">{transaction.method}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        transaction.status === 'Success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }`}>
-                        {transaction.status}
-                      </span>
+                {dashboardData.recentTransactions.length > 0 ? (
+                  dashboardData.recentTransactions.map((transaction: any) => (
+                    <tr key={transaction.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{transaction.reference}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₵{transaction.amount.toLocaleString()}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-black">{transaction.payment_method || 'Paystack'}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          transaction.status === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                          {transaction.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
+                        {new Date(transaction.created_at).toLocaleDateString()}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-4 text-center text-black">
+                      No recent transactions found
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black">{transaction.date}</td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>

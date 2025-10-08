@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { config } from '@/lib/config';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
   try {
     const clientId = process.env.GOOGLE_CLIENT_ID || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-    const redirectUri = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/auth/google/callback`;
+    const redirectUri = `${config.appUrl}/api/auth/google/callback`;
 
     if (!clientId || !clientSecret) {
       throw new Error('Google OAuth credentials not configured');

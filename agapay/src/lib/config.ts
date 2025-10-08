@@ -2,7 +2,7 @@
 export const config = {
   // API URL - Use environment variable or fallback to localhost
   apiUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
-  appUrl: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+  appUrl: process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'),
 
   // Paystack configuration
   paystackPublicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || '',

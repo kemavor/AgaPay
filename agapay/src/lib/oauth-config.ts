@@ -11,7 +11,7 @@ export const GOOGLE_SCOPES = [
 // OAuth Redirect URIs
 export const GOOGLE_REDIRECT_URI = process.env.NEXTAUTH_URL
   ? `${process.env.NEXTAUTH_URL}/api/auth/google/callback`
-  : 'http://localhost:3000/api/auth/google/callback';
+  : `http://localhost:${process.env.PORT || 3000}/api/auth/google/callback`;
 
 // JWT Secret for session management
 export const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';

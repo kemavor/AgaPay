@@ -137,7 +137,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       if (provider === 'google') {
         // Use API endpoint to get auth URL (server-side secret handling)
-        const response = await fetch('/api/auth/google/init')
+        const response = await fetch(getApiUrl('/api/auth/google/init'))
         if (!response.ok) {
           throw new Error('Failed to initialize Google OAuth')
         }

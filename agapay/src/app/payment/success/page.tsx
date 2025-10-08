@@ -17,6 +17,16 @@ export default function PaymentSuccessPage() {
       try {
         const reference = searchParams.get('reference') || searchParams.get('trxref')
 
+        // Check if this payment has already been processed to prevent duplicates
+        const processedPaymentsKey = 'processed_payments'
+        const processedPayments = JSON.parse(sessionStorage.getItem(processedPaymentsKey) || '[]')
+
+        if (reference && processedPayments.includes(reference)) {
+          console.log('Payment already processed:', reference)
+          setVerifying(false)
+          return
+        }
+
         if (!reference) {
           // Check session storage for payment details from inline popup
           const storedReference = sessionStorage.getItem('payment_reference')
@@ -24,6 +34,13 @@ export default function PaymentSuccessPage() {
           const storedEmail = sessionStorage.getItem('payment_email')
 
           if (storedReference && storedAmount && storedEmail) {
+            // Check if stored payment was already processed
+            if (processedPayments.includes(storedReference)) {
+              console.log('Stored payment already processed:', storedReference)
+              setVerifying(false)
+              return
+            }
+
             // Use stored payment details
             setPaymentData({
               reference: storedReference,
@@ -64,7 +81,29 @@ export default function PaymentSuccessPage() {
 
           // Update collection total if this was a collection contribution
           if (data.data.metadata?.collection_id) {
-            await updateCollectionTotal(data.data.metadata.collection_id, data.data.amount)
+            console.log('Updating collection total:', {
+              collection_id: data.data.metadata.collection_id,
+              amount: data.data.amount,
+              metadata: data.data.metadata
+            })
+            try {
+              await updateCollectionTotal(data.data.metadata.collection_id, data.data.amount)
+              console.log('Collection total updated successfully')
+
+              // Mark this payment as processed to prevent duplicates
+              const updatedProcessedPayments = [...processedPayments, reference]
+              sessionStorage.setItem(processedPaymentsKey, JSON.stringify(updatedProcessedPayments))
+              console.log('Payment marked as processed:', reference)
+            } catch (updateError) {
+              console.error('Failed to update collection total:', updateError)
+              // Don't fail the whole payment process if collection update fails
+            }
+          } else {
+            console.log('No collection_id in metadata, skipping collection update')
+            // Still mark as processed even if no collection update
+            const updatedProcessedPayments = [...processedPayments, reference]
+            sessionStorage.setItem(processedPaymentsKey, JSON.stringify(updatedProcessedPayments))
+            console.log('Payment marked as processed (no collection):', reference)
           }
         } else {
           setStatus('failed')
@@ -82,6 +121,8 @@ export default function PaymentSuccessPage() {
 
   const updateCollectionTotal = async (collectionId: string, amount: number) => {
     try {
+      console.log('Sending collection update request:', { collectionId, amount })
+
       const response = await fetch('/api/collections/update-total', {
         method: 'POST',
         headers: {
@@ -93,11 +134,17 @@ export default function PaymentSuccessPage() {
         })
       })
 
+      const result = await response.json()
+
       if (response.ok) {
-        console.log('Collection total updated successfully')
+        console.log('Collection total updated successfully:', result)
+      } else {
+        console.error('Collection update failed:', result.error)
+        throw new Error(result.error || 'Failed to update collection total')
       }
     } catch (error) {
       console.error('Failed to update collection total:', error)
+      throw error
     }
   }
 

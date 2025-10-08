@@ -99,10 +99,22 @@ export function updateCollectionAmount(id: number, amount: number): void {
 }
 
 export function updateCollectionTotal(id: number, amount: number): Collection | null {
+  console.log('Updating collection total:', { id, amount, currentCollections: collections.length });
+
   const collection = collections.find(c => c.id === id);
   if (collection) {
+    const oldAmount = collection.current_amount;
     collection.current_amount += amount;
+    console.log('Collection updated:', {
+      id: collection.id,
+      title: collection.title,
+      oldAmount,
+      newAmount: collection.current_amount,
+      addedAmount: amount
+    });
     return collection;
   }
+
+  console.error('Collection not found:', { id, availableIds: collections.map(c => c.id) });
   return null;
 }

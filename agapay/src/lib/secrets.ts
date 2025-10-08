@@ -36,7 +36,7 @@ class SecretManager {
         auth_uri: 'https://accounts.google.com/o/oauth2/auth',
         token_uri: 'https://oauth2.googleapis.com/token',
         auth_provider_x509_cert_url: 'https://www.googleapis.com/oauth2/v1/certs',
-        redirect_uris: [process.env.GOOGLE_REDIRECT_URI || 'http://localhost:3000']
+        redirect_uris: [process.env.GOOGLE_REDIRECT_URI || `http://localhost:${process.env.PORT || 3000}`]
       }
       return this.googleSecrets
     }
@@ -62,7 +62,7 @@ class SecretManager {
 
               // Update redirect URI to match our development server
               if (this.googleSecrets) {
-                this.googleSecrets.redirect_uris = ['http://localhost:3000']
+                this.googleSecrets.redirect_uris = [`http://localhost:${process.env.PORT || 3000}`]
               }
 
               console.log(' Google OAuth secrets loaded from local file (development mode)')
@@ -124,7 +124,7 @@ export const publicConfig = {
     ],
     redirectUri: process.env.NEXTAUTH_URL
       ? `${process.env.NEXTAUTH_URL}/api/auth/google/callback`
-      : 'http://localhost:3000/api/auth/google/callback'
+      : `http://localhost:${process.env.PORT || 3000}/api/auth/google/callback`
   }
 }
 

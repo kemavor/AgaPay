@@ -6,7 +6,7 @@ from typing import Optional
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
-from database_simple import get_db
+from database.config import get_db
 from models.models import User
 from schemas.user import UserCreate, UserResponse, UserLogin, Token
 from core.config import settings

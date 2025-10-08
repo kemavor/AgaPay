@@ -5,9 +5,9 @@ from sqlalchemy.orm import Session
 import uvicorn
 from contextlib import asynccontextmanager
 
-from database_simple import get_db, engine
+from database.config import get_db, engine
 from models import models
-from routers import auth, payments, users, collections, test_payments, simple_test
+from routers import auth, payments, users, collections
 from core.config import settings
 
 
@@ -59,8 +59,6 @@ except Exception as e:
     import traceback
     traceback.print_exc()
 
-app.include_router(test_payments.router, tags=["Test"])
-app.include_router(simple_test.router, tags=["Simple-Test"])
 
 
 @app.get("/")

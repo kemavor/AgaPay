@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { paystackService } from '@/lib/paystack-service'
+import { config } from '@/lib/config'
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,7 +32,7 @@ export async function POST(request: NextRequest) {
       amount: paystackService.formatAmount(amount),
       currency,
       reference,
-      callback_url: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/payments/verify`,
+      callback_url: `${config.appUrl}/api/payments/verify`,
       metadata: metadata || {}
     }
 

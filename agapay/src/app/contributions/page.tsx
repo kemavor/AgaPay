@@ -184,6 +184,7 @@ export default function ContributionsPage() {
     }
   }, [])
 
+  
   const fetchCollections = async (showRefreshMessage = false) => {
     try {
       const response = await fetch('/api/collections')
@@ -219,6 +220,7 @@ export default function ContributionsPage() {
     totalRaised: collections.reduce((sum, c) => sum + c.current_amount, 0)
   }
 
+  
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">

@@ -20,7 +20,8 @@
       "Bash(dir:*)",
       "Bash(timeout:*)",
       "Bash(xargs:*)",
-      "Bash(NODE_ENV=development npm run build)"
+      "Bash(NODE_ENV=development npm run build)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { config } from '@/lib/config';
 
 export async function GET() {
   try {
@@ -8,7 +9,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Google Client ID not found' }, { status: 500 });
     }
 
-    const redirectUri = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/auth/google/callback`;
+    const redirectUri = `${config.appUrl}/api/auth/google/callback`;
 
     const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
     authUrl.searchParams.append('client_id', clientId);
